@@ -81,7 +81,7 @@ void App::onUserInput(UserInput *uinput) {
 
 
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
-
+	GApp::onSimulation(rdt, sdt, idt);
 	// rdt is the change in time (dt) in seconds since the last call to onSimulation
 	// So, you can slow down the simulation by half if you divide it by 2.
 	rdt *= 0.5;
@@ -100,7 +100,6 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D) {
 	rd->clear();
-
 
 	Box tabletop(Vector3(-76.25, -5, -137), Vector3(76.25, 0, 137));
 	Draw::box(tabletop, rd, Color3(0, 0.4, 0), Color3(1, 1, 1));
