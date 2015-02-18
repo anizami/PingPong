@@ -44,11 +44,7 @@ void App::onInit() {
 	activeCamera()->lookAt(Vector3(0,0,0), Vector3(0,1,0));
 	activeCamera()->setFarPlaneZ(-1000);
 
-	// Populates netString Array
-	// for (double x = -14.25; x < 14.25; ++x) // north - south lines
-	// {
-	// 	netStrings.append(Box(Vector3(x - 0.25, 0, 0.5), Vector3(x + 0.25, 15.25, -0.5)));
-	// }
+
 }
 
 
@@ -106,10 +102,11 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D)
 	rd->clear();
 
 
-
-
 	Box tabletop(Vector3(-76.25, -5, -137), Vector3(76.25, 0, 137));
 	Draw::box(tabletop, rd, Color3(0, 0.4, 0), Color3(1, 1, 1));
+
+	Box tableMiddleLine(Vector3(-1, 0, -137), Vector3(1, 0, 137));
+	Draw::box(tableMiddleLine, rd, Color3::white(), Color4::clear());
 
 	Box legA(Vector3(-56.25, -71, 117), Vector3(-46.25, -5, 107));
 	Draw::box(legA, rd, Color3(0.81, 0.77, 0.75), Color3(0.71, 0.67, 0.65));
@@ -120,8 +117,17 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D)
 	Box netBounds(Vector3(-87.5, 0, -0.5), Vector3(87.5, 15.25, 0.5));
 	Draw::box(netBounds, rd, Color4::clear(), Color3(0.55, 0.55, 0.55));
 
-	// Draw::boxes(netStrings, rd, Color3(0, 0, 0), Color4::clear());
-
+	LineSegment net;
+	for (int y = 0; y < 15; y += 2)
+	{
+		net = LineSegment::fromTwoPoints(Point3(-87.5, y, 0), Point3(87.5, y, 0));
+		Draw::lineSegment(net, rd, Color3::black());
+	}
+	for (int x = -87; x < 87; x += 2)
+	{
+		net = LineSegment::fromTwoPoints(Point3(x, 0, 0), Point3(x, 15.25, 0));
+		Draw::lineSegment(net, rd, Color3::black());
+	}
 
 	// Draw the paddle using 2 cylinders
 	rd->pushState();

@@ -28,9 +28,6 @@ public:
 
 protected:
 
-  // Array of the webbing of the net
-  Array<Box> netStrings;
-
   // This CoordinateFrame stores position and rotation data for the paddle.
   CoordinateFrame paddleFrame;
   
