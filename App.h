@@ -25,7 +25,7 @@ public:
   Vector3 getPaddlePosition() { return paddleFrame.translation; }
   Vector3 getPaddleNormal() { return Vector3(0,0,-1); }
   Vector3 getPaddleVelocity() { return paddleVel; }
-
+   
 protected:
 
   // This CoordinateFrame stores position and rotation data for the paddle.
@@ -33,6 +33,14 @@ protected:
   
   // This vector stores the paddle's current velocity.
   Vector3 paddleVel;
+    
+  virtual Vector3 ballPos(double timeY, double timeZ);
+  double timeY;
+  double timeZ;
+  double yInit;
+  double speedYinit;
+  Vector3 ballPosition;
+
 };
 
 #endif

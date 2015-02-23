@@ -9,6 +9,7 @@ using namespace std;
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
 G3D_START_AT_MAIN();
 
+
 int main(int argc, const char* argv[]) {
 	(void)argc; (void)argv;
 	GApp::Settings settings(argc, argv);
@@ -43,8 +44,13 @@ void App::onInit() {
 	activeCamera()->setPosition(Vector3(0,100,250));
 	activeCamera()->lookAt(Vector3(0,0,0), Vector3(0,1,0));
 	activeCamera()->setFarPlaneZ(-1000);
-
-
+    
+    ballPosition = Vector3(0,0,0);
+    
+    timeY = 0;
+    timeZ = 0;
+    speedYinit = 0;
+    yInit = 30.0;
 }
 
 
@@ -81,10 +87,12 @@ void App::onUserInput(UserInput *uinput) {
 
 
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
-	GApp::onSimulation(rdt, sdt, idt);
+
 	// rdt is the change in time (dt) in seconds since the last call to onSimulation
 	// So, you can slow down the simulation by half if you divide it by 2.
-	rdt *= 0.5;
+	//rdt *= 0.5;
+    timeY += rdt;
+    timeZ += rdt;
 
 	// Here are a few other values that you may find useful..
 	// Radius of the ball = 2cm
@@ -96,26 +104,48 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 }
 
+Vector3 App::ballPos(double timeY,double timeZ) {
+    // double e = time / 4.0;
+    // double y;
+    //return Vector3(0.1*52,0.1*30*(-2*e+1.2),0);
+    double y = 30 + speedYinit*timeY- 4.9*timeY*timeY;
+    if(y <= 1.0) {
+        // double oldY = ballPosition.Y_AXIS;
+        //y = oldY - 4.9*timeY*timeY + 1.0;
+        speedYinit = 9.8 * timeY;
+        // double oldTimeY = timeY;
+        timeY = 0.0;
+        yInit = 0.0;
+        y = 1.1;
+    }
+    else {
+        y = yInit + speedYinit*timeY- 4.9*timeY*timeY;
+    }
+    ballPosition = Vector3(0,y,-137+10*timeZ);
+    
+    return ballPosition;
+}
 
 
 void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D) {
 	rd->clear();
 
-	Box tabletop(Vector3(-76.25, -5, -137), Vector3(76.25, 0, 137));
-	Draw::box(tabletop, rd, Color3(0, 0.4, 0), Color3(1, 1, 1));
 
+    Box tabletop(Vector3(-76.25, -5, -137), Vector3(76.25, 0, 137));
+	Draw::box(tabletop, rd, Color3(0, 0.4, 0), Color3(1, 1, 1));
+    
 	Box tableMiddleLine(Vector3(-1, 0, -137), Vector3(1, 0, 137));
 	Draw::box(tableMiddleLine, rd, Color3::white(), Color4::clear());
-
+    
 	Box legA(Vector3(-56.25, -71, 117), Vector3(-46.25, -5, 107));
 	Draw::box(legA, rd, Color3(0.81, 0.77, 0.75), Color3(0.71, 0.67, 0.65));
-
+    
 	Box legB(Vector3(56.25, -71, 117), Vector3(46.25, -5, 107));
 	Draw::box(legB, rd, Color3(0.81, 0.77, 0.75), Color3(0.71, 0.67, 0.65));
-
+    
 	Box netBounds(Vector3(-87.5, 0, -0.5), Vector3(87.5, 15.25, 0.5));
 	Draw::box(netBounds, rd, Color4::clear(), Color3(0.55, 0.55, 0.55));
-
+    
 	LineSegment net;
 	for (int y = 0; y < 15; y += 2)
 	{
@@ -126,7 +156,14 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D)
 	{
 		net = LineSegment::fromTwoPoints(Point3(x, 0, 0), Point3(x, 15.25, 0));
 		Draw::lineSegment(net, rd, Color3::black());
-	}
+    }
+    
+    // Sphere ball(Vector3(0,30,-137), 2.0);
+    Sphere ball(ballPos(timeY,timeZ), 2.0);
+    Draw::sphere(ball, rd, Color3::red());
+
+
+
 
 	// Draw the paddle using 2 cylinders
 	rd->pushState();
