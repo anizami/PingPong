@@ -4,7 +4,7 @@
 
 #ifndef App_h
 #define App_h
-
+#include <cmath>
 #include <G3D/G3DAll.h>
 
 class App : public GApp {
@@ -34,12 +34,17 @@ protected:
   // This vector stores the paddle's current velocity.
   Vector3 paddleVel;
     
-  virtual Vector3 ballPos(double timeY, double timeZ);
+  virtual Vector3 ballPos();
   double timeY;
   double timeZ;
   double yInit;
   double speedYinit;
   Vector3 ballPosition;
+  Vector3 ballSpeed;
+  double dt;
+  BOOL yDown;
+  double zSpeed;
+  double zInit;
 
 };
 

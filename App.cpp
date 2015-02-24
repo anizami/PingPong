@@ -4,6 +4,7 @@ Comp 394 S15 Assignment #2 Ping Pong 3D
 
 #include "App.h"
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
@@ -45,12 +46,17 @@ void App::onInit() {
 	activeCamera()->lookAt(Vector3(0,0,0), Vector3(0,1,0));
 	activeCamera()->setFarPlaneZ(-1000);
     
-    ballPosition = Vector3(0,0,0);
-    
+    ballPosition = Vector3(0,30,0);
+    ballSpeed = Vector3(0,0,0);
+    yDown = true;
+
     timeY = 0;
     timeZ = 0;
     speedYinit = 0;
-    yInit = 30.0;
+    yInit = 40.0;
+    zSpeed = 60.0;
+    dt = 10.0;
+    zInit = -100.0;
 }
 
 
@@ -90,9 +96,10 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 	// rdt is the change in time (dt) in seconds since the last call to onSimulation
 	// So, you can slow down the simulation by half if you divide it by 2.
-	//rdt *= 0.5;
+	rdt *= 2.0;
     timeY += rdt;
     timeZ += rdt;
+    //dt = sdt;
 
 	// Here are a few other values that you may find useful..
 	// Radius of the ball = 2cm
@@ -104,25 +111,34 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 }
 
-Vector3 App::ballPos(double timeY,double timeZ) {
-    // double e = time / 4.0;
-    // double y;
-    //return Vector3(0.1*52,0.1*30*(-2*e+1.2),0);
-    double y = 30 + speedYinit*timeY- 4.9*timeY*timeY;
-    if(y <= 1.0) {
-        // double oldY = ballPosition.Y_AXIS;
-        //y = oldY - 4.9*timeY*timeY + 1.0;
+Vector3 App::ballPos() {
+    double y = yInit + speedYinit*timeY- 4.9*timeY*timeY;
+    if (abs(ballPosition.z) <= 0.5 && ballPosition.y <= 15.25){ // check if the ball is colliding with the net
+        // STILL SUPER BUGGY. DOESN'T DO WHAT WE NEED IT TO!
+        zSpeed *= -1;
+        zInit = ballPosition.z;
+//        timeZ = 0.0;
+    }
+    if (ballPosition.y == yInit && !yDown){
+        yDown = true;
+    }
+    if(ballPosition.y <= 1.0 && yDown) { // So far yDown is the only way I've been able to make the ball bounce on the table.
         speedYinit = 9.8 * timeY;
-        // double oldTimeY = timeY;
         timeY = 0.0;
         yInit = 0.0;
-        y = 1.1;
+        y = ballPosition.y;
+        yDown = false;
+    }
+    else if((ballPosition.x - paddleFrame.translation.x) <= 8.0 && ballPosition.z == paddleFrame.translation.z){
+        zSpeed *= -1;
+        zInit = ballPosition.z;
+        timeZ = 0.0;
+        
     }
     else {
         y = yInit + speedYinit*timeY- 4.9*timeY*timeY;
     }
-    ballPosition = Vector3(0,y,-137+10*timeZ);
-    
+    ballPosition = Vector3(0,y,zInit+zSpeed*timeZ);
     return ballPosition;
 }
 
@@ -159,7 +175,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D)
     }
     
     // Sphere ball(Vector3(0,30,-137), 2.0);
-    Sphere ball(ballPos(timeY,timeZ), 2.0);
+    Sphere ball(ballPos(), 2.0);
     Draw::sphere(ball, rd, Color3::red());
 
 
