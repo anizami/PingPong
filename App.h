@@ -14,6 +14,7 @@ public:
 
   virtual void onInit();
 
+
   virtual void onUserInput(UserInput *uinput); 
   
   virtual void onSimulation(RealTime rdt, SimTime sdt, SimTime idt);
@@ -34,17 +35,17 @@ protected:
   // This vector stores the paddle's current velocity.
   Vector3 paddleVel;
     
-  virtual Vector3 ballPos();
-  double timeY;
-  double timeZ;
-  double yInit;
+  double time;
+  //double timeZ;
+//  double yInit;
   double speedYinit;
   Vector3 ballPosition;
+  Vector3 initPos;
+  Vector3 initVel;
   Vector3 ballSpeed;
-  double dt;
-  BOOL yDown;
-  double zSpeed;
-  double zInit;
+//  BOOL yDown;
+//  double zSpeed;
+//  double zInit;
 
 };
 
