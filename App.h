@@ -37,16 +37,11 @@ protected:
     
   double timeY;
   double timeZ;
-//  double yInit;
-  double speedYinit;
+   
+   virtual void resetBall() ;
   Vector3 ballPosition;
   Vector3 initPos;
   Vector3 initVel;
-  Vector3 ballSpeed;
-//  BOOL yDown;
-//  double zSpeed;
-//  double zInit;
-
 };
 
 #endif
