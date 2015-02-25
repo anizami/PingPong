@@ -34,7 +34,8 @@ protected:
   
   // This vector stores the paddle's current velocity.
   Vector3 paddleVel;
-    
+   
+   virtual void resetBall() ;
   double time;
   //double timeZ;
 //  double yInit;

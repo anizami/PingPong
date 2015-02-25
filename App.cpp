@@ -5,6 +5,7 @@ Comp 394 S15 Assignment #2 Ping Pong 3D
 #include "App.h"
 #include <iostream>
 #include <cmath>
+#include <stdio.h>
 using namespace std;
 
 // Tells C++ to invoke command-line main() function even on OS X and Win32.
@@ -31,6 +32,16 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 	renderDevice->setSwapBuffersAutomatically(true);
 }
 
+void App::resetBall() {
+	ballPosition = Vector3(0,30,0);
+    ballSpeed = Vector3(0,0,0);
+	initPos = Vector3(0, 40.0, -100.0);
+    initVel = Vector3(0, 0, 60.0);
+    time = 0;
+    
+
+}
+
 
 void App::onInit() {
 	GApp::onInit();
@@ -46,11 +57,7 @@ void App::onInit() {
 	activeCamera()->lookAt(Vector3(0,0,0), Vector3(0,1,0));
 	activeCamera()->setFarPlaneZ(-1000);
     
-    ballPosition = Vector3(0,30,0);
-    ballSpeed = Vector3(0,0,0);
-    initPos = Vector3(0, 40.0, -100.0);
-    initVel = Vector3(0, 0, 60.0);
-    time = 0;
+    resetBall();
 }
 
 
@@ -80,6 +87,7 @@ void App::onUserInput(UserInput *uinput) {
 		// toward you. I found that a good initial position for the ball is: (0, 30, -130).  
 		// And, a good initial velocity is (0, 200, 400).  As usual for this program, all 
 		// units are in cm.
+		resetBall();
 
 	}
 }
@@ -87,10 +95,10 @@ void App::onUserInput(UserInput *uinput) {
 
 
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
-
+	GApp::onSimulation(rdt, sdt, idt);
 	// rdt is the change in time (dt) in seconds since the last call to onSimulation
 	// So, you can slow down the simulation by half if you divide it by 2.
-	rdt *= 2.0;
+	rdt *= 1.5;
     time += rdt;
     //dt = sdt;
 
@@ -105,7 +113,17 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
         // STILL SUPER BUGGY. DOESN'T DO WHAT WE NEED IT TO!
         initVel.z *= -1;
         initPos.z = ballPosition.z;
+        time = 0.0;
     }
+
+
+    double dist = sqrt(pow(getPaddlePosition().x - ballPosition.x, 2) + pow(getPaddlePosition().y - ballPosition.y, 2));
+
+    if (ballPosition.z > 0 && getPaddlePosition().z - ballPosition.z  <= 2 && dist <= 10){
+        initVel.z *= -1; 
+        initPos.z = getPaddlePosition().z;  
+    }
+
     if(ballPosition.y <= 2.0) { // So far yDown is the only way I've been able to make the ball bounce on the table.
         initVel.y = -1 * (initVel.y - 9.8 * time);
         initPos.y = 2 * ballPosition.y;
@@ -113,11 +131,12 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
         ballPosition.z = initPos.z+initVel.z*time;
         initPos.z = ballPosition.z;
         time = 0.0;
-        }
-    else {
+    } else {
         double y = initPos.y + initVel.y * time - 4.9*time*time;
         ballPosition = Vector3(0,y,initPos.z+initVel.z*time);
     }
+
+    
 //    return ballPosition;
 }
 
