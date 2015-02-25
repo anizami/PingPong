@@ -48,9 +48,10 @@ void App::onInit() {
     
     ballPosition = Vector3(0,30,0);
     ballSpeed = Vector3(0,0,0);
-    initPos = Vector3(0, 40.0, -100.0);
-    initVel = Vector3(0, 0, 60.0);
-    time = 0;
+    initPos = Vector3(0, 50.0, -100.0);
+    initVel = Vector3(0, 0, 35.0);
+    timeY = 0;
+    timeZ = 0;
 }
 
 
@@ -87,12 +88,12 @@ void App::onUserInput(UserInput *uinput) {
 
 
 void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
-
+    GApp::onSimulation(rdt, sdt, idt);
 	// rdt is the change in time (dt) in seconds since the last call to onSimulation
 	// So, you can slow down the simulation by half if you divide it by 2.
 	rdt *= 2.0;
-    time += rdt;
-    //dt = sdt;
+    timeY += rdt;
+    double timeZ = timeY;
 
 	// Here are a few other values that you may find useful..
 	// Radius of the ball = 2cm
@@ -102,23 +103,22 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
 
     if (abs(ballPosition.z) <= 2.5 && ballPosition.y <= 15.25){ // check if the ball is colliding with the net
-        // STILL SUPER BUGGY. DOESN'T DO WHAT WE NEED IT TO!
         initVel.z *= -1;
         initPos.z = ballPosition.z;
+        timeZ = 0.0;
     }
     if(ballPosition.y <= 2.0) { // So far yDown is the only way I've been able to make the ball bounce on the table.
-        initVel.y = -1 * (initVel.y - 9.8 * time);
-        initPos.y = 2 * ballPosition.y;
-        ballPosition.y *= 2;
-        ballPosition.z = initPos.z+initVel.z*time;
+        initVel.y = -1 * (initVel.y - 9.8 * timeY);
+        initPos.y = 2.01;
+        ballPosition.y = 2.01;
+        ballPosition.z = initPos.z+initVel.z*timeZ;
         initPos.z = ballPosition.z;
-        time = 0.0;
+        timeY = 0.0;
         }
     else {
-        double y = initPos.y + initVel.y * time - 4.9*time*time;
-        ballPosition = Vector3(0,y,initPos.z+initVel.z*time);
+        double y = initPos.y + initVel.y * timeY - 4.9*timeY*timeY;
+        ballPosition = Vector3(0,y,initPos.z+initVel.z*timeZ);
     }
-//    return ballPosition;
 }
 
 

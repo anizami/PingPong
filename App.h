@@ -35,8 +35,8 @@ protected:
   // This vector stores the paddle's current velocity.
   Vector3 paddleVel;
     
-  double time;
-  //double timeZ;
+  double timeY;
+  double timeZ;
 //  double yInit;
   double speedYinit;
   Vector3 ballPosition;
