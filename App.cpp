@@ -136,8 +136,7 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     double dist = sqrt(pow(getPaddlePosition().x - ballPosition.x, 2) + pow(getPaddlePosition().y - ballPosition.y, 2));
 
     // Check for collisions with Paddle;
-    if (ballPosition.z > 0 && getPaddlePosition().z - ballPosition.z  <= 2 && dist <= 10.0){
-
+    if (ballPosition.z > 0 && getPaddlePosition().z - ballPosition.z  <= 2.5 && dist <= 10.0){
 
         // Handle x coordinate. Takes paddle's velocity in the x-direction into account.
         initVel.x = paddleVel.x * PADDLEX_RESTITUTION;
@@ -151,7 +150,9 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
         
         //Handle z coordinate. Add paddle's velocity in the z-direction according to the law of conservation of momentum.
         initVel.z = (PADDLEZ_RESTITUTION * ((PADDLE_MASS * paddleVel.z) - (BALL_MASS*initVel.z)))/BALL_MASS;
-        initPos.z = getPaddlePosition().z;
+
+        initPos.z = getPaddlePosition().z - 2.51;
+        ballPosition.z = getPaddlePosition().z - 2.51;
         time.z = 0.0;
 
     }
