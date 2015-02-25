@@ -34,13 +34,21 @@ protected:
     
     // This vector stores the paddle's current velocity.
     Vector3 paddleVel;
+    Vector3 time;
     
-    double timeY;
-    double timeZ;
+//    double timeY;
+//    double timeZ;
     
     static const double GRAVITY;
     static const double TABLE_RESTITUTION;
     static const double NET_RESTITUTION;
+    static const double PADDLEX_RESTITUTION;
+    static const double PADDLEY_RESTITUTION;
+    static const double PADDLEZ_RESTITUTION;
+    static const double BALL_MASS;
+    static const double PADDLE_MASS;
+    static const double BALL_RADIUS;
+    
     virtual void resetBall() ;
     Vector3 ballPosition;
     Vector3 initPos;

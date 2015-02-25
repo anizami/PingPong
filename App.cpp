@@ -14,6 +14,15 @@ G3D_START_AT_MAIN();
 const double App::GRAVITY = 9.81;
 const double App::TABLE_RESTITUTION = 0.8;
 const double App::NET_RESTITUTION = 0.7;
+const double App::PADDLEX_RESTITUTION = 0.7;
+const double App::PADDLEY_RESTITUTION = -1.0;
+const double App::PADDLEZ_RESTITUTION = 1.0;
+
+const double App::BALL_RADIUS = 2.0;
+
+const double App::BALL_MASS = 1.0;
+const double App::PADDLE_MASS = 2.0;
+
 
 int main(int argc, const char* argv[]) {
 	(void)argc; (void)argv;
@@ -38,9 +47,8 @@ App::App(const GApp::Settings& settings) : GApp(settings) {
 void App::resetBall() {
 	ballPosition = Vector3(0,30,0);
 	initPos = Vector3(0, 50.0, -100.0);
-    initVel = Vector3(0, 0, 35.0);
-    timeY = 0;
-    timeZ = 0;
+    initVel = Vector3(0, 0, 50.0);
+    time = Vector3(0,0,0);
 }
 
 
@@ -80,8 +88,7 @@ void App::onUserInput(UserInput *uinput) {
 	// at the previous frame and 90% the velocity calculated at this frame.
 	paddleVel = 0.1*paddleVel + 0.9*(newPos - lastPaddlePos);
     
-    
-    
+
 	// This returns true if the SPACEBAR was pressed
 	if (uinput->keyPressed(GKey(' '))) {
 		// This is where you can "serve" a new ball from the opponent's side of the net
@@ -101,8 +108,9 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 	// rdt is the change in time (dt) in seconds since the last call to onSimulation
 	// So, you can slow down the simulation by half if you divide it by 2.
 	rdt *= 2.0;
-    timeY += rdt;
-    timeZ += rdt;
+    time.x += rdt;
+    time.y += rdt;
+    time.z += rdt;
     
     
 	// Here are a few other values that you may find useful..
@@ -113,15 +121,15 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     
 
     // Check for collisions with net
-    if (abs(ballPosition.z) <= 2.5 && ballPosition.y <= 15.25){ // check if the ball is colliding with the net
+    if (abs(ballPosition.z) <= (BALL_RADIUS + 0.5) && ballPosition.y <= 15.25){ // check if the ball is colliding with the net
         if (ballPosition.z > 0){
-            initPos.z = 2.51;
+            initPos.z = BALL_RADIUS + 0.01;
         }
         else{
-            initPos.z = -2.51;
+            initPos.z = -BALL_RADIUS - 0.01;
         }
         initVel.z = initVel.z * -1 * NET_RESTITUTION;
-        timeZ = 0.0;
+        time.z = 0.0;
         
     }
 
@@ -129,24 +137,38 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
 
     // Check for collisions with Paddle;
     if (ballPosition.z > 0 && getPaddlePosition().z - ballPosition.z  <= 2 && dist <= 10.0){
-        initVel.z *= -1;
+
+
+        // Handle x coordinate. Takes paddle's velocity in the x-direction into account.
+        initVel.x = paddleVel.x * PADDLEX_RESTITUTION;
+        initPos.x = ballPosition.x;
+        time.x = 0.0;
+        
+        //Handle y coordinate. Uncomment and test this once paddle collisions are fully implemented.
+//        initVel.y = ((PADDLEY_RESTITUTION * initVel.y)/BALL_MASS);
+//        initPos.y = ballPosition.y;
+//        time.y = 0.0;
+        
+        //Handle z coordinate. Add paddle's velocity in the z-direction according to the law of conservation of momentum.
+        initVel.z = (PADDLEZ_RESTITUTION * ((PADDLE_MASS * paddleVel.z) - (BALL_MASS*initVel.z)))/BALL_MASS;
         initPos.z = getPaddlePosition().z;
-        timeZ = 0.0;
+        time.z = 0.0;
+
     }
-    // Check for collisions with table
-    if(ballPosition.y <= 2.0 && ballPosition.x <= 76.25 && ballPosition.x >= -76.25 && ballPosition.z >= -137 && ballPosition.z <= 137) {
-        initVel.y = -1 * (initVel.y - GRAVITY * timeY) * TABLE_RESTITUTION;
-        initPos.y = 2.01;
-        ballPosition.y = 2.01;
-        ballPosition.z = initPos.z+initVel.z*timeZ;
+    // Check for collisions with table when the ball is within the table's boundary
+    if(ballPosition.y <= BALL_RADIUS && ballPosition.x <= 76.25 && ballPosition.x >= -76.25 && ballPosition.z >= -137 && ballPosition.z <= 137) {
+        initVel.y = -1 * (initVel.y - GRAVITY * time.y) * TABLE_RESTITUTION;
+        initPos.y = BALL_RADIUS + 0.01;
+        ballPosition.y = BALL_RADIUS + 0.01;
+        ballPosition.z = initPos.z+initVel.z*time.z;
         initPos.z = ballPosition.z;
-        timeZ = 0.0;
-        timeY = 0.0;
+        time.z = 0.0;
+        time.y = 0.0;
     }
     // The ball is moving in regular space
     else {
-        double y = initPos.y + initVel.y * timeY - 0.5 * GRAVITY * timeY * timeY;
-        ballPosition = Vector3(0,y,initPos.z+initVel.z*timeZ);
+        double y = initPos.y + initVel.y * time.y - 0.5 * GRAVITY * time.y * time.y;
+        ballPosition = Vector3(initPos.x + initVel.x * time.x,y,initPos.z + initVel.z * time.z);
     }
 }
 
@@ -183,7 +205,7 @@ void App::onGraphics3D(RenderDevice* rd, Array<shared_ptr<Surface> >& surface3D)
     }
     
     // Sphere ball(Vector3(0,30,-137), 2.0);
-    Sphere ball(ballPosition, 2.0);
+    Sphere ball(ballPosition, BALL_RADIUS);
     Draw::sphere(ball, rd, Color3::red());
     
     
