@@ -43,7 +43,6 @@ protected:
     static const double TABLE_RESTITUTION;
     static const double NET_RESTITUTION;
     static const double PADDLEX_RESTITUTION;
-    static const double PADDLEY_RESTITUTION;
     static const double PADDLEZ_RESTITUTION;
     static const double BALL_MASS;
     static const double PADDLE_MASS;

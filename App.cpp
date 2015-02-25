@@ -15,7 +15,6 @@ const double App::GRAVITY = 9.81;
 const double App::TABLE_RESTITUTION = 0.8;
 const double App::NET_RESTITUTION = 0.7;
 const double App::PADDLEX_RESTITUTION = 0.7;
-const double App::PADDLEY_RESTITUTION = -1.0;
 const double App::PADDLEZ_RESTITUTION = 1.0;
 
 const double App::BALL_RADIUS = 2.0;
@@ -123,10 +122,10 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
     // Check for collisions with net
     if (abs(ballPosition.z) <= (BALL_RADIUS + 0.5) && ballPosition.y <= 15.25){ // check if the ball is colliding with the net
         if (ballPosition.z > 0){
-            initPos.z = BALL_RADIUS + 0.01;
+            initPos.z = BALL_RADIUS + 0.5 + 0.01;
         }
         else{
-            initPos.z = -BALL_RADIUS - 0.01;
+            initPos.z = -BALL_RADIUS - 0.5 - 0.01;
         }
         initVel.z = initVel.z * -1 * NET_RESTITUTION;
         time.z = 0.0;
@@ -142,11 +141,6 @@ void App::onSimulation(RealTime rdt, SimTime sdt, SimTime idt) {
         initVel.x = paddleVel.x * PADDLEX_RESTITUTION;
         initPos.x = ballPosition.x;
         time.x = 0.0;
-        
-        //Handle y coordinate. Uncomment and test this once paddle collisions are fully implemented.
-//        initVel.y = ((PADDLEY_RESTITUTION * initVel.y)/BALL_MASS);
-//        initPos.y = ballPosition.y;
-//        time.y = 0.0;
         
         //Handle z coordinate. Add paddle's velocity in the z-direction according to the law of conservation of momentum.
         initVel.z = (PADDLEZ_RESTITUTION * ((PADDLE_MASS * paddleVel.z) - (BALL_MASS*initVel.z)))/BALL_MASS;
